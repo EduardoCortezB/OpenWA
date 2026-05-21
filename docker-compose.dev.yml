@@ -1,33 +1,93 @@
-# OpenWA - Docker Compose for Development
-# Quick Start: docker compose -f docker-compose.dev.yml up -d
+# ============================================================
+# OpenWA — Docker Compose DESARROLLO
+# Incluye postgres + redis locales para no depender de externos
+# Uso: docker compose -f docker-compose.dev.yml up -d
+# ============================================================
 
 services:
-  # API Backend
-  openwa:
+  postgres-openwa:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME:-openwa}
+      POSTGRES_USER: ${DATABASE_USERNAME:-openwa}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-openwa}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - openwa-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME:-openwa} -d ${DATABASE_NAME:-openwa}"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 5
+
+  redis-openwa:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - openwa-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+
+  api-openwa:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: openwa-api
-    ports:
-      - '127.0.0.1:2785:2785'
     environment:
       - NODE_ENV=development
       - PORT=2785
-      - DATABASE_TYPE=sqlite
-      - DATABASE_NAME=/app/data/openwa.sqlite
+      - LOG_LEVEL=${LOG_LEVEL:-debug}
+      # Base de datos
+      - DATABASE_TYPE=postgres
+      - DATABASE_HOST=postgres-openwa
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=${DATABASE_NAME:-openwa}
+      - DATABASE_USERNAME=${DATABASE_USERNAME:-openwa}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD:-openwa}
       - DATABASE_SYNCHRONIZE=true
+      # Engine
       - ENGINE_TYPE=whatsapp-web.js
       - SESSION_DATA_PATH=/app/data/sessions
       - PUPPETEER_HEADLESS=true
       - PUPPETEER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu
+      # Storage
       - STORAGE_TYPE=local
       - STORAGE_LOCAL_PATH=/app/data/media
+      # Redis
+      - REDIS_ENABLED=true
+      - REDIS_HOST=redis-openwa
+      - REDIS_PORT=6379
+      # Webhook
       - WEBHOOK_TIMEOUT=10000
       - WEBHOOK_MAX_RETRIES=3
-      - QUEUE_ENABLED=false
+      - WEBHOOK_RETRY_DELAY=5000
+      # Rate Limit
+      - RATE_LIMIT_TTL=60
+      - RATE_LIMIT_MAX=100
+      # Plugins
+      - PLUGINS_ENABLED=true
+      - PLUGINS_DIR=/app/data/plugins
     volumes:
-      - ./data:/app/data
+      - openwa_data:/app/data
+    depends_on:
+      postgres-openwa:
+        condition: service_healthy
+      redis-openwa:
+        condition: service_healthy
     restart: unless-stopped
+    networks:
+      - openwa-net
     healthcheck:
       test:
         [
@@ -38,22 +98,49 @@ services:
         ]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 30s
+      start_period: 60s
+      retries: 5
 
-  # Dashboard Frontend
-  dashboard:
+  frontend-openwa:
     build:
       context: ./dashboard
       dockerfile: Dockerfile
-    container_name: openwa-dashboard
-    ports:
-      - '127.0.0.1:2886:80'
-    depends_on:
-      openwa:
-        condition: service_healthy
     restart: unless-stopped
+    networks:
+      - openwa-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:80 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+
+  nginx-openwa:
+    image: nginx:alpine
+    ports:
+      - "${APP_PORT:-2886}:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      api-openwa:
+        condition: service_healthy
+      frontend-openwa:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - openwa-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:80/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+
+volumes:
+  postgres_data:
+  redis_data:
+  openwa_data:
 
 networks:
-  default:
-    name: openwa-network
+  openwa-net:
+    driver: bridge
