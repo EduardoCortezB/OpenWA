@@ -271,11 +271,26 @@ export class WhatsAppWebJsAdapter extends EventEmitter implements IWhatsAppEngin
 
   async sendTextMessage(chatId: string, text: string): Promise<MessageResult> {
     this.ensureReady();
-    const msg = await this.client!.sendMessage(chatId, text);
+    const resolvedId = await this.resolveNumberId(chatId);
+    const msg = await this.client!.sendMessage(resolvedId, text);
     return {
       id: msg.id._serialized,
       timestamp: msg.timestamp,
     };
+  }
+
+  // Resuelve el ID correcto del número para manejar el sistema LID de WhatsApp.
+  // Sin esto, sendMessage lanza "No LID for user" en cuentas multi-device.
+  private async resolveNumberId(chatId: string): Promise<string> {
+    if (chatId.includes('@g.us') || chatId.includes('@broadcast')) return chatId;
+    const number = chatId.replace('@c.us', '').replace('@s.whatsapp.net', '');
+    try {
+      const numberId = await this.client!.getNumberId(number);
+      if (numberId) return numberId._serialized;
+    } catch {
+      // fallback al chatId original
+    }
+    return chatId;
   }
 
   async sendImageMessage(chatId: string, media: MediaInput): Promise<MessageResult> {
@@ -301,18 +316,16 @@ export class WhatsAppWebJsAdapter extends EventEmitter implements IWhatsAppEngin
 
     if (typeof media.data === 'string') {
       if (media.data.startsWith('http://') || media.data.startsWith('https://')) {
-        // URL
         messageMedia = await MessageMedia.fromUrl(media.data);
       } else {
-        // Base64
         messageMedia = new MessageMedia(media.mimetype, media.data, media.filename);
       }
     } else {
-      // Buffer
       messageMedia = new MessageMedia(media.mimetype, media.data.toString('base64'), media.filename);
     }
 
-    const msg = await this.client!.sendMessage(chatId, messageMedia, {
+    const resolvedId = await this.resolveNumberId(chatId);
+    const msg = await this.client!.sendMessage(resolvedId, messageMedia, {
       caption: media.caption,
     });
 
@@ -384,13 +397,13 @@ export class WhatsAppWebJsAdapter extends EventEmitter implements IWhatsAppEngin
 
   async sendLocationMessage(chatId: string, location: LocationInput): Promise<MessageResult> {
     this.ensureReady();
-    // Import Location class dynamically from whatsapp-web.js
     const { Location } = await import('whatsapp-web.js');
     const loc = new Location(location.latitude, location.longitude, {
       name: location.description || '',
       address: location.address || '',
     });
-    const msg = await this.client!.sendMessage(chatId, loc);
+    const resolvedId = await this.resolveNumberId(chatId);
+    const msg = await this.client!.sendMessage(resolvedId, loc);
     return {
       id: msg.id._serialized,
       timestamp: msg.timestamp,
@@ -399,7 +412,6 @@ export class WhatsAppWebJsAdapter extends EventEmitter implements IWhatsAppEngin
 
   async sendContactMessage(chatId: string, contact: ContactCard): Promise<MessageResult> {
     this.ensureReady();
-    // Create vCard format
     const vcard = [
       'BEGIN:VCARD',
       'VERSION:3.0',
@@ -408,7 +420,8 @@ export class WhatsAppWebJsAdapter extends EventEmitter implements IWhatsAppEngin
       'END:VCARD',
     ].join('\n');
 
-    const msg = await this.client!.sendMessage(chatId, vcard, {
+    const resolvedId = await this.resolveNumberId(chatId);
+    const msg = await this.client!.sendMessage(resolvedId, vcard, {
       parseVCards: true,
     });
     return {
@@ -431,7 +444,8 @@ export class WhatsAppWebJsAdapter extends EventEmitter implements IWhatsAppEngin
       messageMedia = new MessageMedia(media.mimetype, media.data.toString('base64'), media.filename);
     }
 
-    const msg = await this.client!.sendMessage(chatId, messageMedia, {
+    const resolvedId = await this.resolveNumberId(chatId);
+    const msg = await this.client!.sendMessage(resolvedId, messageMedia, {
       sendMediaAsSticker: true,
     });
     return {
