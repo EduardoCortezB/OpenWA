@@ -12,6 +12,9 @@ services:
       dockerfile: Dockerfile
     env_file:
       - .env
+    environment:
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     volumes:
       - openwa-data:/app/data
     restart: unless-stopped

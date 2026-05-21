@@ -35,25 +35,10 @@ function AppContent() {
   const [, setApiKey] = useState(savedKey || '');
   const { setRole, role } = useRole();
 
-  const handleLogin = async (key: string) => {
+  const handleLogin = (key: string, role: UserRole) => {
     setApiKey(key);
     sessionStorage.setItem('openwa_api_key', key);
-
-    // Fetch the role from API
-    try {
-      const response = await fetch('/api/auth/validate', {
-        method: 'POST',
-        headers: { 'X-API-Key': key },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setRole(data.role as UserRole);
-      }
-    } catch {
-      // Default to viewer if we can't fetch role
-      setRole('viewer');
-    }
-
+    setRole(role);
     setIsAuthenticated(true);
   };
 

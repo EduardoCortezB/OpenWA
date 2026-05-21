@@ -1,6 +1,7 @@
-import { Controller, Post, Headers, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Headers, Body, HttpCode, HttpStatus, UnauthorizedException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
+import { Public } from './decorators/auth.decorators';
 import { createLogger } from '../../common/services/logger.service';
 
 @ApiTags('auth')
@@ -9,6 +10,20 @@ export class AuthValidateController {
   private readonly logger = createLogger('AuthValidateController');
 
   constructor(private readonly authService: AuthService) {}
+
+  @Post('login')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Login with username and password' })
+  @ApiResponse({ status: 200, description: 'Login successful, returns API key' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  async login(@Body() body: { username: string; password: string }): Promise<{ apiKey: string; role: string }> {
+    const result = await this.authService.loginWithCredentials(body.username, body.password);
+    if (!result) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    return result;
+  }
 
   @Post('validate')
   @HttpCode(HttpStatus.OK)

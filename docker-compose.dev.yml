@@ -48,6 +48,9 @@ services:
       - NODE_ENV=development
       - PORT=2785
       - LOG_LEVEL=${LOG_LEVEL:-debug}
+      # Credenciales del dashboard
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
       # Base de datos
       - DATABASE_TYPE=postgres
       - DATABASE_HOST=postgres-openwa

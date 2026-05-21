@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, UnauthorizedException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { createHash, randomBytes } from 'crypto';
+import { createHash, randomBytes, timingSafeEqual } from 'crypto';
 import { existsSync, writeFileSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { ApiKey, ApiKeyRole } from './entities/api-key.entity';
@@ -197,6 +197,45 @@ export class AuthService implements OnModuleInit {
     await this.apiKeyRepository.save(apiKey);
 
     return apiKey;
+  }
+
+  async loginWithCredentials(username: string, password: string): Promise<{ apiKey: string; role: string } | null> {
+    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminPassword) {
+      this.logger.warn('ADMIN_PASSWORD not configured — login with credentials is disabled');
+      return null;
+    }
+
+    if (!this.credentialsMatch(username, adminUsername) || !this.credentialsMatch(password, adminPassword)) {
+      return null;
+    }
+
+    let rawKey: string;
+    if (existsSync(API_KEY_FILE)) {
+      rawKey = readFileSync(API_KEY_FILE, 'utf-8').trim();
+    } else if (process.env.NODE_ENV !== 'production') {
+      rawKey = 'dev-admin-key';
+    } else {
+      return null;
+    }
+
+    try {
+      const keyEntity = await this.validateApiKey(rawKey);
+      return { apiKey: rawKey, role: keyEntity.role };
+    } catch {
+      return null;
+    }
+  }
+
+  private credentialsMatch(input: string, expected: string): boolean {
+    const maxLen = Math.max(input.length, expected.length, 1);
+    const inputBuf = Buffer.alloc(maxLen);
+    const expectedBuf = Buffer.alloc(maxLen);
+    inputBuf.write(input);
+    expectedBuf.write(expected);
+    return timingSafeEqual(inputBuf, expectedBuf) && input.length === expected.length;
   }
 
   private hashKey(rawKey: string): string {
