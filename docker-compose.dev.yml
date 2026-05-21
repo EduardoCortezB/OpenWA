@@ -82,7 +82,7 @@ services:
       - PLUGINS_ENABLED=true
       - PLUGINS_DIR=/app/data/plugins
     volumes:
-      - openwa_data:/app/data
+      - ./data:/app/data
     depends_on:
       postgres-openwa:
         condition: service_healthy
@@ -142,7 +142,6 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  openwa_data:
 
 networks:
   openwa-net:
