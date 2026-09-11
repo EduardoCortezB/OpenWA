@@ -10,11 +10,20 @@ import react from '@vitejs/plugin-react';
 // gateway moved on. The sidebar hid the drift by replacing the build-time value with the live
 // version from the API (see Layout.tsx); the Login screen has no session yet, so it shows this
 // constant verbatim. APP_VERSION env still overrides if explicitly provided.
-const { version: pkgVersion } = JSON.parse(
-  readFileSync(new URL('../package.json', import.meta.url), 'utf-8'),
-) as {
-  version: string;
-};
+//
+// This repo's own dashboard/Dockerfile (Dokploy `frontend-openwa` service) builds with
+// `context: ./dashboard`, so the root package.json above is not in that build context at all — only
+// `dashboard/package.json` is. Fall back to it there instead of crashing the build (ENOENT).
+function readPkgVersion(): string {
+  try {
+    return (JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf-8')) as { version: string })
+      .version;
+  } catch {
+    return (JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8')) as { version: string })
+      .version;
+  }
+}
+const pkgVersion = readPkgVersion();
 
 // https://vite.dev/config/
 export default defineConfig({
