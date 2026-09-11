@@ -105,7 +105,11 @@ async function capture(profile: string): Promise<CapturedConfig> {
  * drift on EITHER side fails here. Deliberate differences (built-in credentials, the postgres
  * init-script mount) are locked too — see the getContainerSpec docblock for the rationale.
  */
-describe('DockerService managed specs ↔ docker-compose.yml parity', () => {
+// Skipped in this deployment: our docker-compose.yml (Dokploy/producción) intentionally keeps the
+// pre-existing 3-container layout (api · frontend · nginx) with external Postgres/Redis and no
+// docker-proxy/built-in-datastore orchestration, rather than upstream's single-container +
+// docker-proxy + optional postgres/redis/minio profiles model this parity guard assumes.
+describe.skip('DockerService managed specs ↔ docker-compose.yml parity', () => {
   const compose = yaml.load(readFileSync(join(__dirname, '../../../docker-compose.yml'), 'utf8')) as ComposeFile;
 
   // getContainerSpec reads the S3 credential env vars at call time; scrub them so the
@@ -429,7 +433,9 @@ describe('DockerService managed specs ↔ docker-compose.yml parity', () => {
  * while the client major lives in the Dockerfile, so bumping either server silently breaks backups
  * until this fails.
  */
-describe('PostgreSQL client is not older than the servers the stack ships', () => {
+// Skipped: docker-compose.yml ships no built-in postgres image here (external DB), so there is no
+// compose-side server version to compare against the Dockerfile's client.
+describe.skip('PostgreSQL client is not older than the servers the stack ships', () => {
   const root = join(__dirname, '../../..');
 
   const major = (file: string, pattern: RegExp): number => {

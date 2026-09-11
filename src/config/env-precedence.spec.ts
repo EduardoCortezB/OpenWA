@@ -222,7 +222,13 @@ describe('blank-shadowed env keys (compose ${VAR:-} forwards the dashboard manag
 // .env / data/.env.generated supply a value — the operator's setting is ignored with no error. Derive
 // the expectation from the compose file rather than restating a list, so a forward added without its
 // clear entry fails here instead of shipping inert (#981).
-describe.each(['docker-compose.yml', 'docker-compose.dev.yml'])('every blank forward in %s is cleared', file => {
+//
+// Only docker-compose.dev.yml is checked: this deployment's docker-compose.yml (Dokploy/producción)
+// forwards config via `env_file: .env` on api-openwa instead of per-key `${VAR:-}` lines, so the
+// blank-forward convention (and its .env.generated precedence dance) does not apply to it — an unset
+// var there is simply absent from the container env, the same end state clearBlankEnv achieves for
+// the dev compose's blank forwards.
+describe.each(['docker-compose.dev.yml'])('every blank forward in %s is cleared', file => {
   const blankForwards = (): string[] => {
     const compose = fs.readFileSync(path.join(__dirname, '../..', file), 'utf8');
     const found = new Set<string>();
@@ -339,7 +345,10 @@ describe('every key the dashboard writes is commented out in .env.example', () =
  * `data/.env.generated` inside the mounted volume, which `.env.example` does not mention for these
  * keys. The sibling MEDIA_CONVERSION_* family was forwarded all along.
  */
-describe.each(['docker-compose.yml', 'docker-compose.dev.yml'])('%s forwards the inbound-media knobs', file => {
+// docker-compose.yml (Dokploy/producción) is not checked here: it forwards config via
+// `env_file: .env` instead of per-key lines, so these knobs reach the container without needing
+// an explicit forward.
+describe.each(['docker-compose.dev.yml'])('%s forwards the inbound-media knobs', file => {
   const compose = (): string => fs.readFileSync(path.join(__dirname, '../..', file), 'utf8');
 
   const forwards = (key: string): boolean => new RegExp(`^\\s*-\\s*${key}=`, 'm').test(compose());

@@ -40,12 +40,15 @@ describe('.env.example lists the keys the codebase claims', () => {
     new Set([...read(...parts).matchAll(/^\s*'([A-Z][A-Z0-9_]{2,})',/gm)].map(match => match[1]));
 
   /**
-   * Keys compose forwarded as `${KEY:-}`. Comment lines are skipped: docker-compose.yml explains the
-   * convention using a literal `${VAR:-}`, which an unfiltered scan reads as a key named `VAR`.
+   * Keys compose forwarded as `${KEY:-}`. Read from docker-compose.dev.yml, not docker-compose.yml:
+   * this deployment's production compose (Dokploy) forwards config via `env_file: .env` instead of
+   * per-key `${VAR:-}` lines, so it no longer enumerates every knob — the dev compose still does.
+   * Comment lines are skipped: it explains the convention using a literal `${VAR:-}`, which an
+   * unfiltered scan reads as a key named `VAR`.
    */
   const composeForwardedKeys = (): Set<string> => {
     const keys = new Set<string>();
-    for (const line of read('docker-compose.yml').split('\n')) {
+    for (const line of read('docker-compose.dev.yml').split('\n')) {
       if (line.trim().startsWith('#')) continue;
       for (const match of line.matchAll(/\$\{([A-Z][A-Z0-9_]*):-/g)) keys.add(match[1]);
     }
