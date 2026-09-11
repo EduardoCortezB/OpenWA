@@ -1,21 +1,28 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Languages } from 'lucide-react';
 import { GithubIcon } from '../components/GithubIcon';
-import type { UserRole } from '../hooks/useRole';
+import { CustomSelect } from '../components/CustomSelect';
+import { languageOptions, resolveSupportedLanguage, type SupportedLanguage } from '../i18n';
+import { API_BASE_URL } from '../services/api';
 import './Login.css';
 
 interface LoginProps {
-  onLogin: (apiKey: string, role: UserRole) => void;
+  onLogin: (apiKey: string, role?: string) => void;
 }
 
 export function Login({ onLogin }: LoginProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const currentLang = resolveSupportedLanguage(i18n.resolvedLanguage || i18n.language);
+
+  const changeLanguage = (language: SupportedLanguage) => {
+    void i18n.changeLanguage(language);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,15 +34,15 @@ export function Login({ onLogin }: LoginProps) {
     setError('');
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
 
       if (response.ok) {
-        const data = await response.json();
-        onLogin(data.apiKey, data.role as UserRole);
+        const data: { apiKey: string; role?: string } = await response.json();
+        onLogin(data.apiKey, data.role);
       } else {
         setError(t('login.invalidCredentials'));
       }
@@ -54,10 +61,23 @@ export function Login({ onLogin }: LoginProps) {
           <span className="version-info">
             {t('login.version', {
               version: __APP_VERSION__,
-              date: new Date(__BUILD_TIME__).toLocaleDateString(),
+              // ISO date (YYYYMMDD) so the format is stable across locales/regions instead of the
+              // locale-dependent toLocaleDateString() which renders differently per browser region.
+              date: new Date(__BUILD_TIME__).toISOString().slice(0, 10).replace(/-/g, ''),
             })}
           </span>
         </div>
+
+        <div className="login-language">
+          <Languages size={18} />
+          <CustomSelect
+            value={currentLang}
+            onChange={value => changeLanguage(value as SupportedLanguage)}
+            options={languageOptions.map(opt => ({ value: opt.value, label: opt.label }))}
+            ariaLabel={t('common.language')}
+          />
+        </div>
+
         <form onSubmit={handleSubmit} className="login-form">
           <div className="input-group">
             <label htmlFor="username">{t('login.username')}</label>
@@ -99,11 +119,7 @@ export function Login({ onLogin }: LoginProps) {
 
         <p className="login-help">
           {t('login.help')}{' '}
-          <a
-            href="https://github.com/rmyndharis/OpenWA/blob/main/docs/01-project-overview.md"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="https://docs.open-wa.org" target="_blank" rel="noopener noreferrer">
             {t('login.viewDocs')}
           </a>
         </p>
