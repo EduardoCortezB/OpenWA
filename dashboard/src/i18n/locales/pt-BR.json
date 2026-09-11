@@ -179,12 +179,14 @@
     "reload": "Recarregar painel"
   },
   "login": {
-    "apiKey": "Chave API",
-    "apiKeyPlaceholder": "Insira sua chave API",
-    "apiKeyRequired": "A chave API é obrigatória",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "credentialsRequired": "Username and password are required",
+    "invalidCredentials": "Invalid username or password",
     "connect": "Conectar",
     "connecting": "Conectando...",
-    "invalidKey": "Chave API inválida",
     "connectionError": "Não foi possível conectar ao servidor. Por favor, tente novamente.",
     "help": "Precisa de ajuda?",
     "viewDocs": "Ver documentação",

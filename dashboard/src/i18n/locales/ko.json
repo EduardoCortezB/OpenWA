@@ -179,12 +179,14 @@
     "reload": "대시보드 새로고침"
   },
   "login": {
-    "apiKey": "API 키",
-    "apiKeyPlaceholder": "API 키를 입력하세요",
-    "apiKeyRequired": "API 키가 필요합니다",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "credentialsRequired": "Username and password are required",
+    "invalidCredentials": "Invalid username or password",
     "connect": "연결",
     "connecting": "연결하는 중...",
-    "invalidKey": "잘못된 API 키입니다",
     "connectionError": "서버에 연결할 수 없습니다. 다시 시도해 주세요.",
     "help": "도움이 필요하신가요?",
     "viewDocs": "문서 보기",

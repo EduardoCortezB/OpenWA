@@ -179,12 +179,14 @@
     "reload": "డ్యాష్‌బోర్డ్‌ను రీలోడ్ చేయి"
   },
   "login": {
-    "apiKey": "API కీ",
-    "apiKeyPlaceholder": "మీ API కీని ఎంటర్ చేయండి",
-    "apiKeyRequired": "API కీ అవసరం",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "credentialsRequired": "Username and password are required",
+    "invalidCredentials": "Invalid username or password",
     "connect": "కనెక్ట్ చేయి",
     "connecting": "కనెక్ట్ అవుతోంది...",
-    "invalidKey": "చెల్లని API కీ",
     "connectionError": "సర్వర్‌కు కనెక్ట్ కాలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.",
     "help": "సహాయం కావాలా?",
     "viewDocs": "డాక్యుమెంటేషన్ చూడండి",

@@ -306,6 +306,25 @@
         ]
       }
     },
+    "/api/auth/login": {
+      "post": {
+        "operationId": "AuthValidateController_login",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Login successful, returns API key"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        },
+        "summary": "Login with username and password",
+        "tags": [
+          "auth"
+        ],
+        "security": []
+      }
+    },
     "/api/auth/validate": {
       "post": {
         "operationId": "AuthValidateController_validate",

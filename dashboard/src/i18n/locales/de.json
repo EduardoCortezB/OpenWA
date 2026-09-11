@@ -179,12 +179,14 @@
     "reload": "Dashboard neu laden"
   },
   "login": {
-    "apiKey": "API-Schlüssel",
-    "apiKeyPlaceholder": "API-Schlüssel eingeben",
-    "apiKeyRequired": "API-Schlüssel ist erforderlich",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "credentialsRequired": "Username and password are required",
+    "invalidCredentials": "Invalid username or password",
     "connect": "Verbinden",
     "connecting": "Verbindung wird hergestellt...",
-    "invalidKey": "Ungültiger API-Schlüssel",
     "connectionError": "Verbindung zum Server nicht möglich. Bitte versuche es erneut.",
     "help": "Brauchst du Hilfe?",
     "viewDocs": "Dokumentation ansehen",

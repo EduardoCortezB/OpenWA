@@ -179,12 +179,14 @@
     "reload": "重新載入控制面板"
   },
   "login": {
-    "apiKey": "API 金鑰",
-    "apiKeyPlaceholder": "輸入你的 API 金鑰",
-    "apiKeyRequired": "必須輸入 API 金鑰",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "credentialsRequired": "Username and password are required",
+    "invalidCredentials": "Invalid username or password",
     "connect": "連線",
     "connecting": "正在連線...",
-    "invalidKey": "API 金鑰無效",
     "connectionError": "無法連線到伺服器。請再試一次。",
     "help": "需要協助？",
     "viewDocs": "查看文件",

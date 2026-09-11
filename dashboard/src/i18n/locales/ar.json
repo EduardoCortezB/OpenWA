@@ -190,12 +190,14 @@
     "reload": "إعادة تحميل لوحة التحكم"
   },
   "login": {
-    "apiKey": "مفتاح API",
-    "apiKeyPlaceholder": "أدخل مفتاح API الخاص بك",
-    "apiKeyRequired": "مفتاح API مطلوب",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "credentialsRequired": "Username and password are required",
+    "invalidCredentials": "Invalid username or password",
     "connect": "اتصال",
     "connecting": "جارٍ الاتصال...",
-    "invalidKey": "مفتاح API غير صالح",
     "connectionError": "تعذّر الاتصال بالخادم. يرجى المحاولة مرة أخرى.",
     "help": "هل تحتاج مساعدة؟",
     "viewDocs": "عرض التوثيق",

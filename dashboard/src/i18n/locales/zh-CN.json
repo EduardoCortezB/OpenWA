@@ -179,12 +179,14 @@
     "reload": "重新加载仪表盘"
   },
   "login": {
-    "apiKey": "API 密钥",
-    "apiKeyPlaceholder": "输入你的 API 密钥",
-    "apiKeyRequired": "必须输入 API 密钥",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "credentialsRequired": "Username and password are required",
+    "invalidCredentials": "Invalid username or password",
     "connect": "连接",
     "connecting": "正在连接...",
-    "invalidKey": "API 密钥无效",
     "connectionError": "无法连接到服务器。请重试。",
     "help": "需要帮助？",
     "viewDocs": "查看文档",

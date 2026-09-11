@@ -105,12 +105,15 @@ describe('feature-flags', () => {
     // Only docker-compose.dev.yml is checked here: docker-compose.yml (Dokploy/producción) uses
     // `env_file: .env` on api-openwa instead of per-key forwards, and the referenced service is
     // named api-openwa, not openwa-api.
-    it.each([['docker-compose.dev.yml', 'openwa']])('%s forwards the redirect flag on service %s', (file, serviceName) => {
-      const compose = fs.readFileSync(path.join(__dirname, '../../', file), 'utf8');
-      const service = extractTopLevelService(compose, serviceName);
-      expect(service).toContain(
-        'PLUGIN_DOWNLOAD_ALLOW_INSECURE_REDIRECTS=${PLUGIN_DOWNLOAD_ALLOW_INSECURE_REDIRECTS:-false}',
-      );
-    });
+    it.each([['docker-compose.dev.yml', 'openwa']])(
+      '%s forwards the redirect flag on service %s',
+      (file, serviceName) => {
+        const compose = fs.readFileSync(path.join(__dirname, '../../', file), 'utf8');
+        const service = extractTopLevelService(compose, serviceName);
+        expect(service).toContain(
+          'PLUGIN_DOWNLOAD_ALLOW_INSECURE_REDIRECTS=${PLUGIN_DOWNLOAD_ALLOW_INSECURE_REDIRECTS:-false}',
+        );
+      },
+    );
   });
 });

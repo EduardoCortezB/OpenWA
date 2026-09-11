@@ -179,12 +179,14 @@
     "reload": "Ricarica Dashboard"
   },
   "login": {
-    "apiKey": "Chiave API",
-    "apiKeyPlaceholder": "Inserisci la tua chiave API",
-    "apiKeyRequired": "La chiave API è richiesta",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "credentialsRequired": "Username and password are required",
+    "invalidCredentials": "Invalid username or password",
     "connect": "Connetti",
     "connecting": "Connessione in corso...",
-    "invalidKey": "Chiave API non valida",
     "connectionError": "Impossibile connettersi al server. Riprova.",
     "help": "Serve aiuto?",
     "viewDocs": "Visualizza la documentazione",

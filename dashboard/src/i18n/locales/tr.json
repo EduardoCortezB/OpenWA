@@ -179,12 +179,14 @@
     "reload": "Kontrol Panelini Yeniden Yükle"
   },
   "login": {
-    "apiKey": "API Anahtarı",
-    "apiKeyPlaceholder": "API anahtarınızı girin",
-    "apiKeyRequired": "API anahtarı zorunludur",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "credentialsRequired": "Username and password are required",
+    "invalidCredentials": "Invalid username or password",
     "connect": "Bağlan",
     "connecting": "Bağlanıyor...",
-    "invalidKey": "Geçersiz API anahtarı",
     "connectionError": "Sunucuya bağlanılamadı. Lütfen tekrar deneyin.",
     "help": "Yardıma mı ihtiyacınız var?",
     "viewDocs": "Dokümantasyonu Görüntüle",
